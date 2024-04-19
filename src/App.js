@@ -107,6 +107,26 @@ function App() {
     setSelectedRecipe(null);
   };
 
+  const handleDeleteRecipe = async (recipeId) => {
+    try {
+      const response = await fetch(`/api/recipes/${selectedRecipe.id}`, {
+        method: "DELETE"
+      });
+
+      if (response.ok) {
+        setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
+        setSelectedRecipe(null);
+        console.log("Recipe deleted successfully");
+      } else {
+        console.error("Oh snap - could not delete recipe!");
+      }
+
+    } catch (e) {
+      console.error("Something went wrong during the request",e);
+      console.error("An unexpected error occurred. Please try again later.");
+    }
+  };
+
   const handleSelectRecipe = (recipe) => {
     setSelectedRecipe(recipe);
   };
@@ -152,7 +172,8 @@ function App() {
       selectedRecipe={selectedRecipe} 
       handleUnselectRecipe={handleUnselectRecipe}
       onUpdateForm={onUpdateForm}
-      handleUpdateRecipe={handleUpdateRecipe} />}
+      handleUpdateRecipe={handleUpdateRecipe}
+      handleDeleteRecipe={handleDeleteRecipe} />}
       {!selectedRecipe && (
       <div className="recipe-list">
       {recipes.map((recipe) => (
