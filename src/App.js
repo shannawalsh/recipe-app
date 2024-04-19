@@ -5,6 +5,9 @@ import React, { useState, useEffect } from 'react';
 import RecipeExcerpt from "./components/RecipeExcerpt";
 import NewRecipeForm from "./components/NewRecipeForm";
 import RecipeFull from "./components/RecipeFull";
+import displayToast from "./helpers/toastHelper";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 function App() {
@@ -32,10 +35,10 @@ function App() {
           const results = await response.json();
           setRecipes(results);
         } else {
-          console.log("Opps = could not fetch any recipes!");
+          displayToast("Opps = could not fetch any recipes!", "success");
         }
       } catch (e) {
-        console.log("Something went wrong", e);
+        displayToast("Something went wrong", e, "error");
       }
     };
     fetchAllRecipes();
@@ -56,7 +59,8 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         setRecipes([...recipes, data.recipe]);
-        console.log("Recipe successfully updated");
+        console.log("Recipe successfully added");
+        displayToast("Recipe successfully added", "success");
         setShowNewRecipeForm(false);
         setNewRecipe({
           title: "",
@@ -67,10 +71,10 @@ function App() {
           image_url: "https://images.pexels.com/photos/9986228/pexels-photo-9986228.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
         });
       } else {
-        console.error("Oh snap - could not add recipe!");
+        displayToast("Oh snap - could not add recipe!", "error");
       }
     } catch (e) {
-      console.error("An error occurred during the request:", e);
+      displayToast("An error occurred during the request:", "error");
     }
   };
 
@@ -98,12 +102,12 @@ function App() {
             return recipe;
           })
           );
-        console.log("Recipe updated!");
+        displayToast("Recipe updated!", "success");
        } else {
-        console.error("Oh snap - could not update recipe!");
+        displayToast("Oh snap - could not update recipe!", "error");
       }
     } catch (e) {
-      console.error("An error occurred during the request. Please try again later.");
+      displayToast("An error occurred during the request. Please try again later.", "error");
     }
     setSelectedRecipe(null);
   };
@@ -117,14 +121,14 @@ function App() {
       if (response.ok) {
         setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
         setSelectedRecipe(null);
-        console.log("Recipe deleted successfully");
+        displayToast("Recipe deleted successfully", "success");
       } else {
-        console.error("Oh snap - could not delete recipe!");
+        displayToast("Oh snap - could not delete recipe!", "error");
       }
 
     } catch (e) {
-      console.error("Something went wrong during the request",e);
-      console.error("An unexpected error occurred. Please try again later.");
+      displayToast("Something went wrong during the request", e, "error");
+      displayToast("An unexpected error occurred. Please try again later.", "error");
     }
   };
 
@@ -173,13 +177,20 @@ function App() {
 
   const displayedRecipes = searchTerm ? handleSearch() : recipes;
 
+  const displayAllRecipes = () => {
+    updateSearchTerm("");
+    handleUnselectRecipe();
+    hideRecipeForm();
+  };
+
   
   return (
     <div className='recipe-app'>
       <Header 
       showRecipeForm={showRecipeForm} 
       searchTerm={searchTerm} 
-      updateSearchTerm={updateSearchTerm} 
+      updateSearchTerm={updateSearchTerm}
+      displayAllRecipes={displayAllRecipes} 
       />
       {showNewRecipeForm && (
         <NewRecipeForm 
@@ -188,20 +199,28 @@ function App() {
           onUpdateForm={onUpdateForm} 
           handleNewRecipe={handleNewRecipe} 
           />
-          )}
-      {selectedRecipe && <RecipeFull 
+    )}
+    {selectedRecipe && (
+      <RecipeFull 
       selectedRecipe={selectedRecipe} 
       handleUnselectRecipe={handleUnselectRecipe}
       onUpdateForm={onUpdateForm}
       handleUpdateRecipe={handleUpdateRecipe}
-      handleDeleteRecipe={handleDeleteRecipe} />}
-      {!selectedRecipe && (
+      handleDeleteRecipe={handleDeleteRecipe} 
+      />
+    )}
+    {!selectedRecipe && (
       <div className="recipe-list">
       {displayedRecipes.map((recipe) => (
-        <RecipeExcerpt key={recipe.id} recipe={recipe} handleSelectRecipe={handleSelectRecipe} />
+        <RecipeExcerpt 
+        key={recipe.id} 
+        recipe={recipe} 
+        handleSelectRecipe={handleSelectRecipe} 
+        />
         ))}
       </div>
-      )}
+    )}
+      <ToastContainer />
     </div>
   );
 }
