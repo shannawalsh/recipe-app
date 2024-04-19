@@ -11,7 +11,8 @@ function App() {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showNewRecipeForm, setShowNewRecipeForm] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const [newRecipe, setNewRecipe] = useState(
     {
       title: "",
@@ -144,6 +145,10 @@ function App() {
     setSelectedRecipe(null);
   };
 
+  const updateSearchTerm = (text) => {
+    setSearchTerm(text);
+  };
+
   const onUpdateForm = (e, action = "new") => {
     const { name, value } = e.target;
     if (action === "update") {
@@ -156,10 +161,26 @@ function App() {
     }
   };
 
+  const handleSearch = () => {
+    const searchResults = recipes.filter((recipe) => {
+      const valuesToSearch = [recipe.title, recipe.ingredients, recipe.description];
+      //Search term will check the title, ingredients and description for the value entered. Then return a boolean value.
+      return valuesToSearch.some((value) => value.toLowerCase().includes(searchTerm.toLowerCase()));
+    });
+
+    return searchResults;
+  };
+
+  const displayedRecipes = searchTerm ? handleSearch() : recipes;
+
   
   return (
     <div className='recipe-app'>
-      <Header showRecipeForm={showRecipeForm} />
+      <Header 
+      showRecipeForm={showRecipeForm} 
+      searchTerm={searchTerm} 
+      updateSearchTerm={updateSearchTerm} 
+      />
       {showNewRecipeForm && (
         <NewRecipeForm 
           newRecipe={newRecipe} 
@@ -176,7 +197,7 @@ function App() {
       handleDeleteRecipe={handleDeleteRecipe} />}
       {!selectedRecipe && (
       <div className="recipe-list">
-      {recipes.map((recipe) => (
+      {displayedRecipes.map((recipe) => (
         <RecipeExcerpt key={recipe.id} recipe={recipe} handleSelectRecipe={handleSelectRecipe} />
         ))}
       </div>
