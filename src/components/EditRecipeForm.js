@@ -1,7 +1,7 @@
 import React from "react";
 
 const EditRecipeForm = ({ selectedRecipe,handleCancel, onUpdateForm, handleUpdateRecipe }) => {
-    console.log(selectedRecipe);
+    
   return (
     <div className='recipe-form'>
       <h2>Edit "{selectedRecipe.title}"</h2>
